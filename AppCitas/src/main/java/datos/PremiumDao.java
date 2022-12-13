@@ -3,46 +3,47 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package datos;
-//Importar la clase Caracteristicas dentro de la carpeta dominio:
+
+/**
+ *
+ * @author ilc19
+ */
 import static datos.Conexion.close;
 import static datos.Conexion.getConnection;
-import dominio.Caracteristicas;
-//import dominio.Usuario;
+import dominio.Premium;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Level;
-//import java.util.logging.Logger;
-/**
- *
- * @author ilc19
- */
-public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
+import java.sql.Date;
+
+public class PremiumDao implements IAccesoDatosPremium{
     //Método para buscar características
-    private static final String SQL_SELECT="SELECT * FROM caracteristicas";
+    private static final String SQL_SELECT="SELECT * FROM premium";
     //Método para dar de alta
-    //idUsuario, bio, trabajo, formacion, ciudad, estatura, alcohol, deporte, tabaco, hijos, fotos
-    private static final String SQL_INSERT="INSERT INTO caracteristicas (idUsuario,bio,trabajo,formacion,ciudad,estatura,alcohol,deporte,tabaco,hijos,fotos) value(?,?,?,?,?,?,?,?,?,?,?)";
+    //int idPremium, int idUsuario, Date fechaAlta, Date fechaBaja, double precio
+    private static final String SQL_INSERT="INSERT INTO premium (idUsuario, fechaAlta, fechaBaja, precio) value(?,?,?,?)";
     //Método para actualizar: 
-    private static final String SQL_UPDATE="UPDATE caracteristicas SET bio=?, trabajo=?, formacion=?, ciudad=?, alcohol=?, deporte=?, tabaco=?, hijos=?, fotos=? WHERE idUsuario= ?";
+    private static final String SQL_UPDATE="UPDATE premium SET fechaBaja=?, precio=? WHERE idUsuario= ?";
     //Método para Borrar
     //private static final String SQL_DELETE="DELETE FROM caracteristicas where idCaracteristicas=?";
-    private static final String SQL_DELETE="DELETE FROM caracteristicas where idUsuario=?";
+    private static final String SQL_DELETE="DELETE FROM premium where idUsuario=?";
+    
+    
     
     @Override
     //Función que nos lista todas las personas de nuestro sistema
-    public List<Caracteristicas> seleccionar() throws SQLException{
+    public List<Premium> seleccionar() throws SQLException{
         //LEER LA BBDD:
         //Inicializo mis variables
         Connection conn=null;
         PreparedStatement stmt=null;
         //para optener resultados
         ResultSet rs=null;
-        Caracteristicas caracteristica=null;
-        List<Caracteristicas>caracteristicas=new ArrayList<>();
+        Premium Premium=null;
+        List<Premium>premium=new ArrayList<>();
          //1. Establecemos conexión:
         conn=getConnection();
         //2. Preparo mi instruccion para ejecutarla contra la bbdd
@@ -51,31 +52,24 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
         rs=stmt.executeQuery();
         //Itero, de cada registro coge la infor para instanciarlos después
         while(rs.next()){
-            //idUsuario, bio, trabajo, formacion, ciudad, estatura, alcohol, deporte, tabaco, hijos, fotos
-            Integer idCaracteristicas=rs.getInt("idCaracteristicas");
+            //int idPremium, int idUsuario, Date fechaAlta, Date fechaBaja, double precio
+            Integer idPremium=rs.getInt("idPremium");
             Integer idUsuario=rs.getInt("idUsuario");
-            String bio=rs.getString("Bio");
-            String trabajo=rs.getString("Trabajo");
-            String formacion=rs.getString("Formacion");
-            String ciudad=rs.getString("Ciudad");
-            Integer estatura=rs.getInt("Estatura");
-            Boolean alcohol=rs.getBoolean("Alcohol");
-            Boolean deporte=rs.getBoolean("Deporte");
-            Boolean tabaco=rs.getBoolean("Tabaco");
-            Boolean hijos=rs.getBoolean("Hijos");
-            String fotos=rs.getString("fotos");
+            Date fechaAlta=rs.getDate("fechaAlta");
+            Date fechaBaja=rs.getDate("fechaBaja");
+            Double precio=rs.getDouble("precio");
             //Instancia con la información recogida en la iteración
-            caracteristicas.add(new Caracteristicas(idCaracteristicas,idUsuario,bio,trabajo,formacion,ciudad,estatura,alcohol,deporte,tabaco,hijos,fotos));
+            premium.add(new Premium(idPremium,idUsuario,fechaAlta,fechaBaja,precio));
         }
         close(rs);
         close(stmt);
         close(conn);
-        return caracteristicas; 
+        return premium; 
     }
     @Override
     //INSERTAR PERSONAS EN LA BBDD:
     //Función que inserta una persona en mi sistema, pasándole un objeto a través de un formulario:
-    public int insertar(Caracteristicas caracteristica){
+    public int insertar(Premium premium){
          //declaro e inicializo mis var
         Connection conn=null;
         PreparedStatement stmt=null;
@@ -86,17 +80,11 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
             //2. Preparo mi instruccion para ejecutarla contra la bbdd
             stmt=conn.prepareStatement(SQL_INSERT);
             //Asignar los valores a los interrogantes de la consulta:
-            stmt.setInt(1/*interrogante 1*/, caracteristica.getIdUsuario()/*recibo el atributo*/);
-            stmt.setString(2/*interrogante 2*/, caracteristica.getBio()/*recibo el atributo*/);
-            stmt.setString(3/*interrogante 3*/, caracteristica.getTrabajo()/*recibo el atributo*/);
-            stmt.setString(4, caracteristica.getFormacion());
-            stmt.setString(5, caracteristica.getCiudad());
-            stmt.setInt(6, caracteristica.getEstatura());
-            stmt.setBoolean(7, caracteristica.isAlcohol());
-            stmt.setBoolean(8, caracteristica.isDeporte());
-            stmt.setBoolean(9, caracteristica.isTabaco());
-            stmt.setBoolean(10, caracteristica.isHijos());
-            stmt.setString(11, caracteristica.getFotos());
+//          idUsuario, fechaAlta, fechaBaja, precio
+            stmt.setInt(1/*interrogante 1*/, premium.getIdUsuario()/*recibo el atributo*/);
+            stmt.setDate(2, premium.getFechaAlta());
+            stmt.setDate(3, premium.getFechaBaja());
+            stmt.setDouble(4, premium.getPrecio());
             //3. Ejecuto la query
             registro=stmt.executeUpdate();
         } catch (SQLException ex) {
@@ -113,7 +101,7 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
     }
     @Override
      //ACTUALIZAR DATOS:
-    public int actualizar(Caracteristicas caracteristica){
+    public int actualizar(Premium premium){
         //declaro e inicializo mis var
         Connection conn=null;
         PreparedStatement stmt=null;
@@ -126,17 +114,10 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
             //2. Preparo mi instruccion para ejecutarla contra la bbdd
             stmt=conn.prepareStatement(SQL_UPDATE);
             //Asignar los valores a los interrogantes de la consulta UPDATE:
-            //bio=?, trabajo=?, formacion=?, ciudad=?, alcohol=?, deporte=?, tabaco=?, hijos=?, fotos=?, IdUsuario=?
-            stmt.setString(1/*posición de inserción del atributo*/, caracteristica.getBio()/*recibo el atributo en esa posición*/);
-            stmt.setString(2, caracteristica.getTrabajo());
-            stmt.setString(3, caracteristica.getFormacion());
-            stmt.setString(4, caracteristica.getCiudad());
-            stmt.setBoolean(5, caracteristica.isAlcohol());
-            stmt.setBoolean(6, caracteristica.isDeporte());
-            stmt.setBoolean(7, caracteristica.isTabaco());
-            stmt.setBoolean(8, caracteristica.isHijos());
-            stmt.setString(9, caracteristica.getFotos());
-            stmt.setInt(10,caracteristica.getIdUsuario());
+            //fechaAlta=?, fechaBaja=?, precio=?, IdUsuario=?
+            stmt.setDate(1, premium.getFechaBaja());
+            stmt.setDouble(2, premium.getPrecio());
+            stmt.setInt(3, premium.getIdUsuario());
             //3. Ejecuto la query
             actualizacion=stmt.executeUpdate();
         //Excepción
@@ -150,12 +131,11 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
                 ex.printStackTrace(System.out);
             }
         }
-        
         return actualizacion;
     }
     @Override
-     //BORRAR DATOS:
-    public int borrar(Caracteristicas caracteristica){
+ //BORRAR DATOS:
+    public int borrar(Premium premium){
          //declaro e inicializo mis var
         Connection conn=null;
         PreparedStatement stmt=null;
@@ -163,9 +143,8 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
         try {
             conn=getConnection();
             stmt=conn.prepareStatement(SQL_DELETE);
-//            stmt.setInt(1, caracteristica.getIdCaracteristicas());
             //Asignar los valores a los interrogantes de la consulta UPDATE:
-            stmt.setInt(1, caracteristica.getIdUsuario());
+            stmt.setInt(1, premium.getIdUsuario());
             //3. Ejecuto la query
             eliminar=stmt.executeUpdate();
         //Excepción
@@ -179,9 +158,6 @@ public class CaracteristicasDao implements IAccesoDatosCaracteristicas{
                 ex.printStackTrace(System.out);
             }
         }
-        
         return eliminar;
     }
-    
-    
 }

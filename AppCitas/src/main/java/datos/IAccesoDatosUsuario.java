@@ -17,5 +17,5 @@ public interface IAccesoDatosUsuario {
     public int insertar(Usuario usuario);
     public int actualizar(Usuario usuario);
     public int borrar(Usuario usuario);
-    
+    public List<Usuario> buscarGen(boolean inte, boolean gen, int idU) throws SQLException;
 }

@@ -30,9 +30,15 @@ public class UsuarioDao implements IAccesoDatosUsuario {
     //Método para actualizar
     private static final String SQL_UPDATE="UPDATE usuario SET nick=?, clave=?, genero=?, interes=?, longitud=?, latitud=? WHERE idUsuario= ?";
     //Método para Borrar
-   private static final String SQL_DELETE="DELETE FROM usuario where idUsuario=?";
-    //Función que nos lista todas las personas de nuestro sistema
+    private static final String SQL_DELETE="DELETE FROM usuario where idUsuario=?";
+    //Método para buscar por género (heteros y homo)
+    private static final String SQL_SEARCH="SELECT nick, interes, edad, longitud, latitud FROM usuario WHERE genero=? AND interes=? AND idUsuario!=?";
    
+    //ArrayList que contiene todos los usuarios que estan dentro de la base de datos:
+//    public static List<Usuario>usuarios=new ArrayList<>();
+    
+    @Override
+    //Función que nos lista todas las personas de nuestro sistema
     public List<Usuario> seleccionar() throws SQLException{
     //LEER LA BBDD:
         //Inicializo mis variables
@@ -41,7 +47,7 @@ public class UsuarioDao implements IAccesoDatosUsuario {
         //para optener resultados
         ResultSet rs=null;
         Usuario usuario=null;
-        //ArrayList que contiene todos los usuarios que estan dentro de la base de datos:
+//      ArrayList que contiene todos los usuarios que estan dentro de la base de datos:
         List<Usuario>usuarios=new ArrayList<>();
         //1. Establecemos conexión:
         conn=getConnection();
@@ -73,7 +79,7 @@ public class UsuarioDao implements IAccesoDatosUsuario {
     
     //INSERTAR PERSONAS EN LA BBDD:
     //Función que inserta una persona en mi sistema, pasándole un objeto a través de un formulario:
-   
+   @Override
     public int insertar(Usuario usuario){
          //declaro e inicializo mis var
         Connection conn=null;
@@ -111,7 +117,7 @@ public class UsuarioDao implements IAccesoDatosUsuario {
         return registro;
         
     }
-    
+    @Override
      //ACTUALIZAR DATOS:
     public int actualizar(Usuario usuario){
         //declaro e inicializo mis var
@@ -150,7 +156,7 @@ public class UsuarioDao implements IAccesoDatosUsuario {
         
         return actualizacion;
     }
-    
+    @Override
      //BORRAR DATOS:
     public int borrar(Usuario usuario){
          //declaro e inicializo mis var
@@ -179,4 +185,39 @@ public class UsuarioDao implements IAccesoDatosUsuario {
         return eliminar;
         
     }
+    @Override
+    //ME REALIZA UNA BUSQUEDA SEGÚN LOS INTERESES DE UN USUARIO, recibe como argumento el interes del usuario que se empleará para encontrar todos los usuarios con ese genero
+     public List<Usuario> buscarGen(boolean inte, boolean gen, int idU) throws SQLException{
+        //Inicializo mis variables
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        //para optener resultados
+        ResultSet rs = null;
+        //ArrayList que contiene todos los usuarios que estan dentro de la base de datos:
+        List<Usuario>usuarios=new ArrayList<>();
+        //1. Establecemos conexión:
+        conn = getConnection();
+        //2. Preparo mi instruccion para ejecutarla contra la bbdd
+        stmt =conn.prepareStatement(SQL_SEARCH);
+        //Asignar los valores a los interrogantes de la consulta:
+        stmt.setBoolean(1, inte);
+        stmt.setBoolean(2, gen);
+        stmt.setInt(3, idU);
+        //3. Ejecuto la query
+        rs = stmt.executeQuery();
+         while(rs.next()){
+            //String nick, String correo, String clave, boolean genero, boolean interes, LocalDateTime fechaNacimiento, String ubicacion
+            String nick=rs.getString("Nick");
+            Boolean interes=rs.getBoolean("Interes");
+            Integer edad=rs.getInt("Edad");
+            Double longitud=rs.getDouble("longitud");
+            Double latitud=rs.getDouble("latitud");
+            //Instancia en el Arrays con la información recogida en la iteración
+            usuarios.add(new Usuario(nick,interes,edad,longitud,latitud));
+        }
+        close(rs);
+        close(stmt);
+        close(conn);
+        return usuarios;   
+    } 
 }

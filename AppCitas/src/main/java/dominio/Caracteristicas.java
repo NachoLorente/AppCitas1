@@ -4,16 +4,8 @@
  */
 package dominio;
 
-import com.mycompany.appcitas.TestMysql;
-import datos.CaracteristicasDao;
-import static dominio.Usuario.ent;
-import datos.UsuarioDao;
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-//import datos.CaracteristicasDao;
 
 /**
  *
@@ -297,95 +289,5 @@ public class Caracteristicas implements Serializable{
         sb.append("\n\t hijos: ").append(hijos);
         sb.append("\n\t fotos: ").append(fotos);
         return sb.toString();
-    }
-    
-    static CaracteristicasDao caracteristicasDao=new CaracteristicasDao(); 
-    
-    public static void insertCar(int idUs){
-        boolean var=true;
-        try {
-            if(caracteristicasDao.seleccionar().isEmpty()){
-                var=true;
-                ingresarCarac(idUs,var);
-                return;
-            }else{
-                for (int i = 0; i < caracteristicasDao.seleccionar().size(); i++) {
-                //ya existe unas caracteristicas para ese idUs:
-                    if(caracteristicasDao.seleccionar().get(i).idUsuario==idUs){
-                        var=false;
-                        ingresarCarac(idUs, var);
-                        return;
-                    }
-                }
-                //en caso de que haya un usuario creado, pero sin caracteristicas agregadas:
-                System.out.println("idUs: "+idUs);
-                System.out.println("3333333333333");
-                var=true;
-                ingresarCarac(idUs, var);
-                return;
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace(System.out);
-        }
-    }
-    
-    public static void ingresarCarac(int idUs, boolean v){
-        boolean alcohol=true;
-        boolean deporte=true;
-        boolean tabaco=true;
-        boolean hijos=true;
-        System.out.println("Acerca de mí");
-                    System.out.println("Sobre mí: ");
-                        String bio=ent.nextLine();
-                    System.out.println("Trabajo: ");
-                        String trabajo=ent.nextLine();
-                    System.out.println("Formación: ");
-                        String formacion=ent.nextLine();
-                    System.out.println("Ciudad natal: ");
-                        String ciudad=ent.nextLine();
-                    System.out.println("Más sobre mí");
-                    System.out.println("Estatura: ");
-                        int estatura=ent.nextInt();
-                    System.out.println("Alcohol(Yes/No): ");
-                        String conf1=ent.nextLine();
-                        ent.nextLine();
-                            if(conf1.compareToIgnoreCase("Yes")==0){
-                                alcohol=true;
-                            }else if(conf1.compareToIgnoreCase("No")==0){
-                                alcohol=false;
-                            }
-                    System.out.println("Deporte: (Yes/No)");
-                        String conf2=ent.nextLine();
-                            if(conf2.compareToIgnoreCase("Yes")==0){
-                                deporte=true;
-                            }else if(conf2.compareToIgnoreCase("No")==0){
-                                deporte=false;
-                            }
-                    System.out.println("Tabaco: (Yes/No)");
-                        String conf3=ent.nextLine();
-                            if(conf3.compareToIgnoreCase("Yes")==0){
-                                tabaco=true;
-                            }else if(conf3.compareToIgnoreCase("No")==0){
-                                tabaco=false;
-                            }
-                    System.out.println("Hijos: (Yes/No)");
-                        String conf4=ent.nextLine();
-                            if(conf4.compareToIgnoreCase("Yes")==0){
-                                    hijos=true;
-                                }else if(conf4.compareToIgnoreCase("No")==0){
-                                    hijos=false;
-                                }
-                    System.out.println("Insertar Fotos: ");
-                        String fotos=ent.nextLine();
-                    if(v==true){
-                        Caracteristicas c4=new Caracteristicas(idUs,bio,trabajo,formacion,ciudad,estatura,alcohol,deporte,tabaco,hijos,fotos);
-                        caracteristicasDao.insertar(c4);
-                        System.out.println("\n--CARACTERÍSTICAS AGREGADAS--");
-                    }else if(v==false){
-                        Caracteristicas c4=new Caracteristicas(idUs,bio,trabajo,formacion,ciudad,estatura,alcohol,deporte,tabaco,hijos,fotos);
-                        caracteristicasDao.actualizar(c4);
-                        System.out.println("\n--PERFIL ACTUALIZADO--\n");
-                        
-                    }
     }
 }
